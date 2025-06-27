@@ -37,8 +37,8 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   };
 
   return (
-    <div className="mb-6">
-      <label className="block text-gray-700 font-medium mb-2">
+    <div className="mb-4 md:mb-6">
+      <label className="block text-gray-700 font-medium mb-2 text-sm md:text-base">
         {label}
       </label>
       <div className="relative">
@@ -46,7 +46,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
           onClick={handleToggle}
           className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-left flex items-center justify-between hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
         >
-          <span className="text-gray-700">{value}</span>
+          <span className="text-gray-700 truncate max-w-[calc(100%-30px)]">{value}</span>
           <ChevronDown 
             className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
               isOpen ? 'rotate-180' : ''
@@ -60,7 +60,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
               <button
                 key={index}
                 onClick={() => handleOptionClick(option)}
-                className="w-full px-4 py-3 text-left hover:bg-blue-50 text-gray-700 first:rounded-t-lg last:rounded-b-lg transition-colors"
+                className="w-full px-4 py-3 text-left hover:bg-blue-50 text-gray-700 first:rounded-t-lg last:rounded-b-lg transition-colors text-sm md:text-base"
               >
                 {option}
               </button>
@@ -87,28 +87,12 @@ export default function AddJobsForm() {
     'CNC Finished'
   ];
 
-  const products: string[] = [
-    'Product A',
-    'Product B',
-    'Product C',
-    'Product D',
-    'Product E'
-  ];
 
   const states: string[] = [
     'ON',
     'OFF',
-    'MAINTENANCE',
-    'IDLE'
   ];
 
-  const stages: string[] = [
-    'Cutting MC/1',
-    'Milling 1',
-    'Milling 2',
-    'Drilling',
-    'CNC Finished'
-  ];
 
   const handleMenuClick = (): void => {
     setSidebarOpen(true);
@@ -130,7 +114,7 @@ export default function AddJobsForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Sidebar Component */}
       <Sidebar 
         isOpen={sidebarOpen} 
@@ -138,7 +122,7 @@ export default function AddJobsForm() {
       />
 
       {/* Header */}
-      <header className="bg-blue-700 shadow-sm px-4 py-4 flex items-center justify-between">
+      <header className="bg-blue-700 shadow-sm px-4 py-4 flex items-center justify-between sticky top-0 z-20">
         <button 
           onClick={handleMenuClick}
           className="p-2 hover:bg-blue-600 rounded-lg transition-colors"
@@ -146,16 +130,16 @@ export default function AddJobsForm() {
           <Menu className="w-6 h-6 text-white" />
         </button>
         
-        <h1 className="text-xl font-semibold text-white">Add Jobs</h1>
+        <h1 className="text-lg md:text-xl font-semibold text-white text-center flex-grow">Add Jobs</h1>
         
-        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-          <span className="text-white font-medium text-lg">A</span>
+        <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-600 rounded-full flex items-center justify-center">
+          <span className="text-white font-medium text-base md:text-lg">A</span>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="px-6 py-8">
-        <div className="max-w-md mx-auto">
+      <main className="px-4 md:px-6 py-6 flex-grow">
+        <div className="w-full max-w-md mx-auto">
           {/* Select Machine/Process */}
           <CustomDropdown
             label="Select Machine/Process"
@@ -164,13 +148,20 @@ export default function AddJobsForm() {
             onChange={setSelectedMachine}
           />
 
-          {/* Add Product */}
-          <CustomDropdown
-            label="Add Product"
-            value={selectedProduct}
-            options={products}
-            onChange={setSelectedProduct}
-          />
+          {/* Product */}
+          <div className="mb-4 md:mb-6">
+            <label className="block text-gray-700 font-medium mb-2 text-sm md:text-base">
+              Product ID
+            </label>
+            <input
+              type="text"
+              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              value={selectedProduct}
+              onChange={e => setSelectedProduct(e.target.value)}
+              placeholder="A-1825"
+            />
+          </div>
+
 
           {/* State */}
           <CustomDropdown
@@ -180,19 +171,13 @@ export default function AddJobsForm() {
             onChange={setSelectedState}
           />
 
-          {/* Current Stage */}
-          <CustomDropdown
-            label="Next Stage"
-            value={selectedStage}
-            options={stages}
-            onChange={setSelectedStage}
-          />
+       
 
           {/* Add Button */}
-          <div className="flex justify-center mt-8">
+          <div className="flex justify-center mt-6 md:mt-8">
             <button
               onClick={handleAddJob}
-              className="bg-white text-blue-700 px-8 py-3 rounded-full font-medium hover:bg-blue-700 hover:text-white transition-colors shadow-lg"
+              className="w-full md:w-auto bg-white text-blue-700 px-6 md:px-8 py-3 rounded-full font-medium hover:bg-blue-700 hover:text-white transition-colors shadow-lg"
             >
               Add
             </button>

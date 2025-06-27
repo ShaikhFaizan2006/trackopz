@@ -1,10 +1,10 @@
 'use client';
 import React, { useState } from 'react';
-import { Menu, Download, ChevronDown } from 'lucide-react';
+import { Menu, Download, ChevronDown, Calendar } from 'lucide-react';
 import Sidebar from '@/components/sidebarm';
 
 // Type definitions
-type ReportType = 'Product Wise' | 'Machine Wise' | 'Date Wise' | 'Operator Wise' | 'Status Wise' | 'Department Wise';
+type ReportType = 'Date Wise' | 'Weekly' | 'Monthly';
 
 interface CustomDropdownProps {
   value: string;
@@ -16,26 +16,48 @@ interface CustomDropdownProps {
 
 export default function ReportsPage() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-  const [selectedReportType, setSelectedReportType] = useState<ReportType>('Product Wise');
+  const [selectedReportType, setSelectedReportType] = useState<ReportType>('Date Wise');
   const [reportTypeDropdownOpen, setReportTypeDropdownOpen] = useState<boolean>(false);
+  
+  // Date state for different report types
+  const [dateWiseStartDate, setDateWiseStartDate] = useState<string>('');
+  const [dateWiseEndDate, setDateWiseEndDate] = useState<string>('');
+  const [weeklyDate, setWeeklyDate] = useState<string>('');
+  const [monthlyDate, setMonthlyDate] = useState<string>('');
 
-  const reportTypes: ReportType[] = [
-    'Product Wise',
-    'Machine Wise',
-    'Date Wise',
-    'Operator Wise',
-    'Status Wise',
-    'Department Wise'
-  ];
+  const reportTypes: ReportType[] = ['Date Wise', 'Weekly', 'Monthly'];
 
   const handleMenuClick = (): void => {
     setSidebarOpen(true);
   };
 
   const handleDownload = (): void => {
-    // Handle download logic here
-    console.log('Downloading report:', selectedReportType);
-    // You can add actual download functionality here
+    switch (selectedReportType) {
+      case 'Date Wise':
+        if (!dateWiseStartDate || !dateWiseEndDate) {
+          alert('Please select both start and end dates');
+          return;
+        }
+        console.log('Downloading Date Wise Report:', { 
+          startDate: dateWiseStartDate, 
+          endDate: dateWiseEndDate 
+        });
+        break;
+      case 'Weekly':
+        if (!weeklyDate) {
+          alert('Please select a week');
+          return;
+        }
+        console.log('Downloading Weekly Report:', { week: weeklyDate });
+        break;
+      case 'Monthly':
+        if (!monthlyDate) {
+          alert('Please select a month');
+          return;
+        }
+        console.log('Downloading Monthly Report:', { month: monthlyDate });
+        break;
+    }
   };
 
   const CustomDropdown: React.FC<CustomDropdownProps> = ({ 
@@ -79,6 +101,71 @@ export default function ReportsPage() {
     );
   };
 
+  const renderReportSection = () => {
+    switch (selectedReportType) {
+      case 'Date Wise':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="start-date" className="block text-sm font-medium text-gray-700 mb-2">
+                Start Date
+              </label>
+              <input 
+                type="date" 
+                id="start-date"
+                value={dateWiseStartDate}
+                onChange={(e) => setDateWiseStartDate(e.target.value)}
+                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="end-date" className="block text-sm font-medium text-gray-700 mb-2">
+                End Date
+              </label>
+              <input 
+                type="date" 
+                id="end-date"
+                value={dateWiseEndDate}
+                onChange={(e) => setDateWiseEndDate(e.target.value)}
+                className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+        );
+      case 'Weekly':
+        return (
+          <div>
+            <label htmlFor="week-select" className="block text-sm font-medium text-gray-700 mb-2">
+              Select Week
+            </label>
+            <input 
+              type="week" 
+              id="week-select"
+              value={weeklyDate}
+              onChange={(e) => setWeeklyDate(e.target.value)}
+              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        );
+      case 'Monthly':
+        return (
+          <div>
+            <label htmlFor="month-select" className="block text-sm font-medium text-gray-700 mb-2">
+              Select Month
+            </label>
+            <input 
+              type="month" 
+              id="month-select"
+              value={monthlyDate}
+              onChange={(e) => setMonthlyDate(e.target.value)}
+              className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar Component */}
@@ -115,9 +202,9 @@ export default function ReportsPage() {
               </h2>
             </div>
 
-            {/* Daily Reports Section */}
+            {/* Reports Section */}
             <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <h3 className="text-sm font-medium text-gray-700 mb-4">Daily Reports</h3>
+              <h3 className="text-sm font-medium text-gray-700 mb-4">Report Selection</h3>
               
               <div className="space-y-4">
                 <CustomDropdown
@@ -128,34 +215,15 @@ export default function ReportsPage() {
                   setIsOpen={setReportTypeDropdownOpen}
                 />
 
+                {renderReportSection()}
+
                 <button
                   onClick={handleDownload}
-                  className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+                  className="w-full bg-black text-white py-3 px-6 rounded-lg font-medium text-sm hover:bg-gray-800 transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 mt-4"
                 >
-                  Download
+                  Download Report
                 </button>
               </div>
-            </div>
-          </div>
-
-          {/* Additional Report Options */}
-          <div className="space-y-4">
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <h3 className="text-sm font-medium text-gray-700 mb-4">Weekly Reports</h3>
-              <button
-                className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-medium text-sm hover:bg-gray-200 transition-colors"
-              >
-                Generate Weekly Report
-              </button>
-            </div>
-
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-              <h3 className="text-sm font-medium text-gray-700 mb-4">Monthly Reports</h3>
-              <button
-                className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-medium text-sm hover:bg-gray-200 transition-colors"
-              >
-                Generate Monthly Report
-              </button>
             </div>
           </div>
 
@@ -166,7 +234,7 @@ export default function ReportsPage() {
               <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Product Wise Report</p>
+                    <p className="text-sm font-medium text-gray-900">Date Wise Report</p>
                     <p className="text-xs text-gray-500">Downloaded 2 hours ago</p>
                   </div>
                   <Download className="w-4 h-4 text-gray-400" />
@@ -175,7 +243,7 @@ export default function ReportsPage() {
               <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Machine Wise Report</p>
+                    <p className="text-sm font-medium text-gray-900">Weekly Report</p>
                     <p className="text-xs text-gray-500">Downloaded yesterday</p>
                   </div>
                   <Download className="w-4 h-4 text-gray-400" />

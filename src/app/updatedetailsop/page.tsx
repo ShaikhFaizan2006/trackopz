@@ -173,7 +173,7 @@ export default function UpdateDetailsPage(): React.ReactElement {
           <Menu className="w-6 h-6 text-blue-700" />
         </button>
         
-        <h1 className="text-xl font-semibold text-blue-700">Update Details</h1>
+        <h1 className="text-xl font-semibold text-blue-700"> Dispatched Menu </h1>
         
         <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
           <span className="text-white font-medium text-lg">A</span>
@@ -185,7 +185,7 @@ export default function UpdateDetailsPage(): React.ReactElement {
         <div className="max-w-md mx-auto">
           {/* Finished Status */}
           <CustomDropdown
-            label="Finished Status"
+            label="Recently Finished Products"
             value={selectedProduct}
             options={products}
             onChange={(value: string) => setSelectedProduct(value as Product)}
@@ -209,7 +209,7 @@ export default function UpdateDetailsPage(): React.ReactElement {
               onChange={() => handleProcessStepChange('oiling')}
             />
           </div>
-
+          
           {/* Dispatch Status */}
           <CustomDropdown
             label="Dispatch Status"

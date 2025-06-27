@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Menu, Clock } from 'lucide-react';
+import { Menu, Clock, Trash2, Check, X } from 'lucide-react';
 import Sidebar from '@/components/sidebar';
 
 interface Product {
@@ -12,13 +12,7 @@ interface Product {
 
 export default function ProductListPage(): React.ReactElement {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-
-  const handleMenuClick = (): void => {
-    setSidebarOpen(true);
-  };
-
-  // Sample products data
-  const products: Product[] = [
+  const [products, setProducts] = useState<Product[]>([
     {
       id: 1,
       name: "Product A",
@@ -49,11 +43,29 @@ export default function ProductListPage(): React.ReactElement {
       process: "Drilling",
       status: "active"
     }
-  ];
+  ]);
+  const [isConfirmingClear, setIsConfirmingClear] = useState<boolean>(false);
+
+  const handleMenuClick = (): void => {
+    setSidebarOpen(true);
+  };
 
   const handleProductClick = (product: Product): void => {
     console.log('Product clicked:', product);
     // Navigate to product details or perform action
+  };
+
+  const handleClearProducts = (): void => {
+    setIsConfirmingClear(true);
+  };
+
+  const confirmClearProducts = (): void => {
+    setProducts([]);
+    setIsConfirmingClear(false);
+  };
+
+  const cancelClearProducts = (): void => {
+    setIsConfirmingClear(false);
   };
 
   return (
@@ -73,7 +85,7 @@ export default function ProductListPage(): React.ReactElement {
           <Menu className="w-6 h-6 text-blue-700" />
         </button>
         
-        <h1 className="text-xl font-semibold text-blue-700">Product List</h1>
+        <h1 className="text-xl font-semibold text-blue-700">Recently Added</h1>
         
         <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
           <span className="text-white font-medium text-lg">A</span>
@@ -83,6 +95,37 @@ export default function ProductListPage(): React.ReactElement {
       {/* Main Content */}
       <main className="px-4 py-6">
         <div className="max-w-md mx-auto">
+          {/* Clear Button with Confirmation */}
+          {products.length > 0 && (
+            <div className="mb-4 flex justify-end items-center space-x-3">
+              {isConfirmingClear ? (
+                <>
+                  <span className="text-sm text-gray-600">Confirm clear all?</span>
+                  <button
+                    onClick={confirmClearProducts}
+                    className="text-green-600 hover:text-green-700 transition-colors"
+                  >
+                    <Check className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={cancelClearProducts}
+                    className="text-red-600 hover:text-red-700 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </>
+              ) : (
+                <button
+                  onClick={handleClearProducts}
+                  className="flex items-center text-red-600 hover:text-red-700 text-sm font-medium transition-colors"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Clear All
+                </button>
+              )}
+            </div>
+          )}
+
           {/* Product List */}
           <div className="space-y-3">
             {products.map((product: Product) => (

@@ -16,6 +16,7 @@ interface Product {
   name: string;
   operation: string;
   date: string;
+  expiryDate?: string; // Optional field to track product lifecycle
 }
 
 type ViewType = 'machine' | 'product' | 'details';
@@ -31,7 +32,7 @@ interface CustomDropdownProps {
 
 export default function WorkPanelInterface() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-  const [currentView, setCurrentView] = useState<ViewType>('machine');
+  const [currentView, setCurrentView] = useState<'live' | 'past'>('live');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('Machine/Process No');
 
@@ -49,14 +50,69 @@ export default function WorkPanelInterface() {
     { id: 5, name: 'CNC Finish', status: 'ON', statusColor: 'green' }
   ];
 
-  // Product data
-  const productData: Product[] = [
-    { id: 'A', name: 'Product A', operation: 'Milling', date: '15/06/2025' },
-    { id: 'B', name: 'Product B', operation: 'Cutting', date: '14/06/2025' },
-    { id: 'C', name: 'Product C', operation: 'Drilling', date: '13/06/2025' },
-    { id: 'D', name: 'Product D', operation: 'Milling', date: '12/06/2025' },
-    { id: 'E', name: 'Product E', operation: 'Finishing', date: '11/06/2025' }
-  ];
+  // Product data with expiry dates
+  const [productData, setProductData] = useState<Product[]>([
+    { 
+      id: 'A', 
+      name: 'Product A', 
+      operation: 'Milling', 
+      date: '15/06/2025',
+      expiryDate: '20/06/2025' // Example expiry date
+    },
+    { 
+      id: 'B', 
+      name: 'Product B', 
+      operation: 'Cutting', 
+      date: '14/06/2025',
+      expiryDate: '19/06/2025' // Example expiry date
+    },
+    { 
+      id: 'C', 
+      name: 'Product C', 
+      operation: 'Drilling', 
+      date: '13/06/2025',
+      expiryDate: '18/06/2025' // Example expiry date
+    },
+    { 
+      id: 'D', 
+      name: 'Product D', 
+      operation: 'Milling', 
+      date: '12/06/2025',
+      expiryDate: '17/06/2025' // Example expiry date
+    },
+    { 
+      id: 'E', 
+      name: 'Product E', 
+      operation: 'Finishing', 
+      date: '11/06/2025',
+      expiryDate: '16/06/2025' // Example expiry date
+    }
+  ]);
+
+  // Function to parse date string to Date object
+  const parseDate = (dateString: string): Date => {
+    const [day, month, year] = dateString.split('/').map(Number);
+    return new Date(year, month - 1, day);
+  };
+
+  // Separate live and past products
+  const getLiveProducts = (): Product[] => {
+    const today = new Date();
+    return productData.filter(product => {
+      if (!product.expiryDate) return true;
+      const expiryDate = parseDate(product.expiryDate);
+      return expiryDate >= today;
+    });
+  };
+
+  const getPastProducts = (): Product[] => {
+    const today = new Date();
+    return productData.filter(product => {
+      if (!product.expiryDate) return false;
+      const expiryDate = parseDate(product.expiryDate);
+      return expiryDate < today;
+    });
+  };
 
   const handleMenuClick = (): void => {
     setSidebarOpen(true);
@@ -84,11 +140,9 @@ export default function WorkPanelInterface() {
 
   const handleSeeDetails = (product: Product): void => {
     setSelectedProduct(product);
-    setCurrentView('details');
   };
 
   const handleClose = (): void => {
-    setCurrentView(selectedFilter === 'Product Type' ? 'product' : 'machine');
     setSelectedProduct(null);
   };
 
@@ -185,9 +239,9 @@ export default function WorkPanelInterface() {
     </div>
   );
 
-  const renderProductView = () => (
+  const renderProductList = (products: Product[]) => (
     <div className="space-y-4">
-      {productData.map((product) => (
+      {products.map((product) => (
         <div key={product.id} className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -195,6 +249,7 @@ export default function WorkPanelInterface() {
               <div>
                 <h3 className="text-gray-900 font-medium text-base mb-1">{product.name}</h3>
                 <p className="text-sm text-gray-500">On: {product.operation}</p>
+                <p className="text-xs text-gray-400">Date: {product.date}</p>
               </div>
             </div>
             <button
@@ -260,23 +315,23 @@ export default function WorkPanelInterface() {
   );
 
   const renderContent = () => {
-    if (currentView === 'details') return renderDetailsView();
-    if (selectedFilter === 'Product Type') return renderProductView();
+    if (selectedProduct) return renderDetailsView();
+    if (selectedFilter === 'Product Type') return renderProductList(productData);
     return renderMachineView();
   };
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Use your existing Sidebar Component */}
+      {/* Sidebar Component */}
       <Sidebar 
         isOpen={sidebarOpen} 
         onClose={() => setSidebarOpen(false)} 
       />
 
       {/* Header */}
-      <header className="bg-white px-6 py-4 flex items-center justify-between">
+      <header className="bg-white px-6 py-4 flex items-center justify-between sticky top-0 z-20">
         <button 
-          onClick={handleMenuClick}
+          onClick={() => setSidebarOpen(true)}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <Menu className="w-6 h-6 text-blue-700" />
@@ -289,21 +344,68 @@ export default function WorkPanelInterface() {
         </div>
       </header>
 
+      {/* Section Tabs */}
+      <div className="flex border-b">
+        <button
+          onClick={() => setCurrentView('live')}
+          className={`flex-1 py-3 flex items-center justify-center ${
+            currentView === 'live' 
+              ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-700' 
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          Live Products
+        </button>
+        <button
+          onClick={() => setCurrentView('past')}
+          className={`flex-1 py-3 flex items-center justify-center ${
+            currentView === 'past' 
+              ? 'bg-blue-100 text-blue-700 border-b-2 border-blue-700' 
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+        >
+          Past Products
+        </button>
+      </div>
+
       {/* Main Content */}
       <main className="px-6 py-8">
         <div className="max-w-2xl mx-auto">
-          <CustomDropdown
-            label="Select By"
-            value={selectedFilter}
-            options={filterOptions}
-            onChange={(value) => {
-              setSelectedFilter(value as FilterType);
-              if (currentView !== 'details') {
-                setCurrentView(value === 'Product Type' ? 'product' : 'machine');
-              }
-            }}
-          />
-          {renderContent()}
+          {selectedProduct ? (
+            renderDetailsView()
+          ) : (
+            <>
+              {currentView === 'live' ? (
+                getLiveProducts().length > 0 ? (
+                  renderProductList(getLiveProducts())
+                ) : (
+                  <div className="text-center py-12 bg-white rounded-lg">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-gray-400 text-2xl">🏁</span>
+                    </div>
+                    <h3 className="text-gray-500 font-medium mb-2">No Live Products</h3>
+                    <p className="text-gray-400 text-sm">
+                      All products have completed their lifecycle
+                    </p>
+                  </div>
+                )
+              ) : (
+                getPastProducts().length > 0 ? (
+                  renderProductList(getPastProducts())
+                ) : (
+                  <div className="text-center py-12 bg-white rounded-lg">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-gray-400 text-2xl">📦</span>
+                    </div>
+                    <h3 className="text-gray-500 font-medium mb-2">No Past Products</h3>
+                    <p className="text-gray-400 text-sm">
+                      No completed products found
+                    </p>
+                  </div>
+                )
+              )}
+            </>
+          )}
         </div>
       </main>
     </div>

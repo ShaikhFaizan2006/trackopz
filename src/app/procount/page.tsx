@@ -73,7 +73,7 @@ export default function ProductListPage(): React.ReactElement {
           <Menu className="w-6 h-6 text-blue-700" />
         </button>
         
-        <h1 className="text-xl font-semibold text-blue-700">Product Count</h1>
+        <h1 className="text-xl font-semibold text-blue-700">Product History</h1>
         
         <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
           <span className="text-white font-medium text-lg">A</span>
@@ -103,7 +103,7 @@ export default function ProductListPage(): React.ReactElement {
                       {product.name}
                     </h3>
                     <div className="flex items-center space-x-1">
-                      <span className="text-gray-500 text-sm">On:</span>
+                      <span className="text-gray-500 text-sm">Total Selected Times: </span>
                       <span className="text-gray-600 text-sm font-medium">
                         {product.count}
                       </span>
@@ -132,21 +132,6 @@ export default function ProductListPage(): React.ReactElement {
             </div>
           )}
 
-          {/* Summary Stats */}
-          {products.length > 0 && (
-            <div className="mt-8 bg-white rounded-lg p-4 shadow-sm border border-gray-100">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 mb-1">
-                  {products.length}
-                </div>
-                <div className="text-gray-500 text-sm">
-                  Total Type
-                </div>
-              </div>
-              
-             
-            </div>
-          )}
         </div>
       </main>
     </div>
